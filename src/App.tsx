@@ -1,7 +1,24 @@
 import React, { useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+import JobCard from "./components/JobCard";
+import styled from "styled-components";
+
+const StyledApp = styled.div`
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .column {
+    flex: 0 0 33.33%;
+    padding: 1rem;
+    box-sizing: border-box;
+    max-width: 33.33%;
+  }
+`;
 
 type JobDescription = {
   jdUid: string;
@@ -28,7 +45,7 @@ type AppState = {
   reqBody: RequestBody;
 };
 
-const getData = async (body: RequestBody) => {
+const getData = async (body: RequestBody): Promise<AxiosResponse<any>> => {
   try {
     const response = await axios.post(
       "https://api.weekday.technology/adhoc/getSampleJdJSON",
@@ -43,6 +60,7 @@ const getData = async (body: RequestBody) => {
     return response;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
@@ -56,7 +74,7 @@ const App = () => {
   });
 
   useEffect(() => {
-    getData(state.reqBody).then((res) => {
+    getData(state.reqBody).then((res: AxiosResponse<any>) => {
       // console.log("useEffect : ", res?.data.jdList);
 
       if (res && res.data) {
@@ -70,8 +88,8 @@ const App = () => {
   }, [state.reqBody]);
 
   return (
-    <div className="App">
-      <>
+    <StyledApp>
+      {/* <>
         {state.jobs.length > 0 ? (
           <div>
             {state.jobs.map((item: JobDescription, index: number) => (
@@ -81,7 +99,29 @@ const App = () => {
         ) : (
           <span>Loading ...</span>
         )}
-      </>
+      </> */}
+
+      <div className="grid">
+        <div className="column">
+          <JobCard />
+        </div>
+        <div className="column">
+          <JobCard />
+        </div>
+        <div className="column">
+          <JobCard />
+        </div>
+
+        <div className="column">
+          <JobCard />
+        </div>
+        <div className="column">
+          <JobCard />
+        </div>
+        <div className="column">
+          <JobCard />
+        </div>
+      </div>
 
       {/* THIS WORKS XD */}
       {/* <button
@@ -97,7 +137,7 @@ const App = () => {
       >
         Load More
       </button> */}
-    </div>
+    </StyledApp>
   );
 };
 

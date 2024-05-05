@@ -103,9 +103,7 @@ const JobCard = (props: JobCardProps) => {
       <div className="about-company">
         <span>About Company</span>
 
-        <p>
-          {props.jobDetailsFromCompany}
-        </p>
+        <p>{props.jobDetailsFromCompany}</p>
       </div>
 
       <div className="min-xp">

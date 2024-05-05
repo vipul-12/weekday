@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
+import InfiniteScroll from "react-infinite-scroll-component";
 import "./App.css";
 import axios, { AxiosResponse } from "axios";
 import JobCard from "./components/JobCard";
@@ -9,7 +9,8 @@ const StyledApp = styled.div`
   .grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    // justify-content: space-around;
+    // overflow: auto;
   }
 
   .column {
@@ -91,22 +92,37 @@ const App = () => {
     <StyledApp>
       <>
         {state.jobs.length > 0 ? (
-          <div className="grid">
-            {state.jobs.map((item: JobDescription, index: number) => (
-              <div className="column" key={index}>
-                <JobCard
-                  companyName={item.companyName}
-                  jobRole={item.jobRole}
-                  location={item.location}
-                  maxJdSalary={item.maxJdSalary}
-                  minJdSalary={item.minJdSalary}
-                  jobDetailsFromCompany={item.jobDetailsFromCompany}
-                  minExp={item.minExp}
-                  logoUrl={item.logoUrl}
-                />
-              </div>
-            ))}
-          </div>
+          <InfiniteScroll
+            dataLength={state.jobs.length}
+            next={() => {
+              setState((state: AppState) => ({
+                ...state,
+                reqBody: {
+                  limit: state.reqBody.limit,
+                  offset: state.reqBody.offset + 1,
+                },
+              }));
+            }}
+            hasMore={true}
+            loader={<h4>Loading...</h4>}
+          >
+            <div className="grid">
+              {state.jobs.map((item: JobDescription, index: number) => (
+                <div className="column" key={index}>
+                  <JobCard
+                    companyName={item.companyName}
+                    jobRole={item.jobRole}
+                    location={item.location}
+                    maxJdSalary={item.maxJdSalary}
+                    minJdSalary={item.minJdSalary}
+                    jobDetailsFromCompany={item.jobDetailsFromCompany}
+                    minExp={item.minExp}
+                    logoUrl={item.logoUrl}
+                  />
+                </div>
+              ))}
+            </div>
+          </InfiniteScroll>
         ) : (
           <span>Loading ...</span>
         )}

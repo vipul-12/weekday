@@ -89,42 +89,31 @@ const App = () => {
 
   return (
     <StyledApp>
-      {/* <>
+      <>
         {state.jobs.length > 0 ? (
-          <div>
+          <div className="grid">
             {state.jobs.map((item: JobDescription, index: number) => (
-              <li key={index}>{item.companyName}</li>
+              <div className="column" key={index}>
+                <JobCard
+                  companyName={item.companyName}
+                  jobRole={item.jobRole}
+                  location={item.location}
+                  maxJdSalary={item.maxJdSalary}
+                  minJdSalary={item.minJdSalary}
+                  jobDetailsFromCompany={item.jobDetailsFromCompany}
+                  minExp={item.minExp}
+                  logoUrl={item.logoUrl}
+                />
+              </div>
             ))}
           </div>
         ) : (
           <span>Loading ...</span>
         )}
-      </> */}
-
-      <div className="grid">
-        <div className="column">
-          <JobCard />
-        </div>
-        <div className="column">
-          <JobCard />
-        </div>
-        <div className="column">
-          <JobCard />
-        </div>
-
-        <div className="column">
-          <JobCard />
-        </div>
-        <div className="column">
-          <JobCard />
-        </div>
-        <div className="column">
-          <JobCard />
-        </div>
-      </div>
+      </>
 
       {/* THIS WORKS XD */}
-      {/* <button
+      <button
         onClick={() => {
           setState((state: AppState) => ({
             ...state,
@@ -136,7 +125,7 @@ const App = () => {
         }}
       >
         Load More
-      </button> */}
+      </button>
     </StyledApp>
   );
 };

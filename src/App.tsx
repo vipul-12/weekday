@@ -11,6 +11,7 @@ const StyledApp = styled.div`
     flex-wrap: wrap;
     // justify-content: space-around;
     // overflow: auto;
+    // height: 400px;
   }
 
   .column {
@@ -18,6 +19,13 @@ const StyledApp = styled.div`
     padding: 1rem;
     box-sizing: border-box;
     max-width: 33.33%;
+  }
+
+  .filters {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 10px;
   }
 `;
 
@@ -41,9 +49,15 @@ type RequestBody = {
   offset: number;
 };
 
+type FilterObject = {
+  minExp: string;
+  companyName: string;
+};
+
 type AppState = {
   jobs: JobDescription[];
   reqBody: RequestBody;
+  filters: FilterObject;
 };
 
 const getData = async (body: RequestBody): Promise<AxiosResponse<any>> => {
@@ -72,7 +86,27 @@ const App = () => {
       limit: 10,
       offset: 0,
     },
+    filters: {
+      minExp: "",
+      companyName: "",
+    },
   });
+
+  const onFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newFilters: FilterObject = state.filters;
+    switch (e.target.name) {
+      case "companyName":
+        newFilters.companyName = e.target.value;
+        break;
+      default:
+        break;
+    }
+
+    setState((state: AppState) => ({
+      ...state,
+      filters: newFilters,
+    }));
+  };
 
   useEffect(() => {
     getData(state.reqBody).then((res: AxiosResponse<any>) => {
@@ -90,6 +124,15 @@ const App = () => {
 
   return (
     <StyledApp>
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Company Name"
+          value={state.filters.companyName}
+          onChange={onFilterChange}
+          name="companyName"
+        />
+      </div>
       <>
         {state.jobs.length > 0 ? (
           <InfiniteScroll
@@ -107,20 +150,28 @@ const App = () => {
             loader={<h4>Loading...</h4>}
           >
             <div className="grid">
-              {state.jobs.map((item: JobDescription, index: number) => (
-                <div className="column" key={index}>
-                  <JobCard
-                    companyName={item.companyName}
-                    jobRole={item.jobRole}
-                    location={item.location}
-                    maxJdSalary={item.maxJdSalary}
-                    minJdSalary={item.minJdSalary}
-                    jobDetailsFromCompany={item.jobDetailsFromCompany}
-                    minExp={item.minExp}
-                    logoUrl={item.logoUrl}
-                  />
-                </div>
-              ))}
+              {state.jobs
+                .filter((job) => {
+                  return state.filters.companyName.toLowerCase() === ""
+                    ? job
+                    : job.companyName
+                        .toLowerCase()
+                        .includes(state.filters.companyName.toLowerCase());
+                })
+                .map((item: JobDescription, index: number) => (
+                  <div className="column" key={index}>
+                    <JobCard
+                      companyName={item.companyName}
+                      jobRole={item.jobRole}
+                      location={item.location}
+                      maxJdSalary={item.maxJdSalary}
+                      minJdSalary={item.minJdSalary}
+                      jobDetailsFromCompany={item.jobDetailsFromCompany}
+                      minExp={item.minExp}
+                      logoUrl={item.logoUrl}
+                    />
+                  </div>
+                ))}
             </div>
           </InfiniteScroll>
         ) : (
@@ -129,7 +180,7 @@ const App = () => {
       </>
 
       {/* THIS WORKS XD */}
-      <button
+      {/* <button
         onClick={() => {
           setState((state: AppState) => ({
             ...state,
@@ -141,7 +192,7 @@ const App = () => {
         }}
       >
         Load More
-      </button>
+      </button> */}
     </StyledApp>
   );
 };

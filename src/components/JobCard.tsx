@@ -57,6 +57,13 @@ const StyledJobCard = styled.div`
     color: #7b7a7eff;
     font-weight: bold;
   }
+
+  .link {
+    display: flex;
+    justify-content: center;
+    color: #0019f7;
+    cursor: pointer;
+  }
 `;
 
 type JobCardProps = {
@@ -68,6 +75,7 @@ type JobCardProps = {
   jobDetailsFromCompany: string;
   minExp: number | null;
   logoUrl: string;
+  openModal: (details: string) => void;
 };
 
 const JobCard = (props: JobCardProps) => {
@@ -103,7 +111,20 @@ const JobCard = (props: JobCardProps) => {
       <div className="about-company">
         <span>About Company</span>
 
-        <p>{props.jobDetailsFromCompany}</p>
+        <p>
+          {props.jobDetailsFromCompany.length > 500
+            ? props.jobDetailsFromCompany.slice(0, 500) + "..."
+            : props.jobDetailsFromCompany}
+        </p>
+
+        <div
+          className="link"
+          onClick={() => {
+            props.openModal(props.jobDetailsFromCompany);
+          }}
+        >
+          Read More
+        </div>
       </div>
 
       <div className="min-xp">

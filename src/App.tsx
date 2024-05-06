@@ -22,10 +22,58 @@ const StyledApp = styled.div`
   }
 
   .filters {
+    display: flex;
+    justify-content: center;
     position: sticky;
     top: 0;
     z-index: 10;
     padding: 10px;
+  }
+
+  .text-input {
+    padding: 2px 4px;
+    margin: 3px;
+    border: 1px solid gray;
+    border-radius: 4px;
+    height: 20px;
+  }
+
+  .select-input {
+    height: 27px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 2px 4px;
+    margin: 2px;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2d374880;
+    z-index: 100;
+  }
+
+  .modalContent {
+    position: relative;
+    background-color: #ffffff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 75%;
+    height: 67%;
+  }
+
+  .cross {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    cursor: pointer;
   }
 `;
 
@@ -62,6 +110,8 @@ type AppState = {
   jobs: JobDescription[];
   reqBody: RequestBody;
   filters: FilterObject;
+  isModalOpen: boolean;
+  enlargedJobDetails: string;
 };
 
 const getData = async (body: RequestBody): Promise<AxiosResponse<any>> => {
@@ -98,6 +148,8 @@ const App = () => {
       jobRole: "",
       minJdSalary: "",
     },
+    isModalOpen: false,
+    enlargedJobDetails: "",
   });
 
   const onFilterSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -184,6 +236,22 @@ const App = () => {
     );
   };
 
+  const openModal = (details: string) => {
+    setState((state: AppState) => ({
+      ...state,
+      isModalOpen: true,
+      enlargedJobDetails: details,
+    }));
+  };
+
+  const closeModal = () => {
+    setState((state: AppState) => ({
+      ...state,
+      isModalOpen: false,
+      enlargedJobDetails: "",
+    }));
+  };
+
   useEffect(() => {
     getData(state.reqBody).then((res: AxiosResponse<any>) => {
       // console.log("useEffect : ", res?.data.jdList);
@@ -205,6 +273,7 @@ const App = () => {
           name="minExp"
           value={state.filters.minExp}
           onChange={onFilterSelectChange}
+          className="select-input"
         >
           <option value="" disabled hidden>
             Min Exp
@@ -222,6 +291,7 @@ const App = () => {
           value={state.filters.companyName}
           onChange={onFilterTextChange}
           name="companyName"
+          className="text-input"
         />
         <input
           type="text"
@@ -229,11 +299,13 @@ const App = () => {
           value={state.filters.location}
           onChange={onFilterTextChange}
           name="location"
+          className="text-input"
         />
         <select
           name="remoteOnsite"
           value={state.filters.remoteOnsite}
           onChange={onFilterSelectChange}
+          className="select-input"
         >
           <option value="" disabled hidden>
             Remote/Onsite
@@ -248,12 +320,14 @@ const App = () => {
           value={state.filters.jobRole}
           onChange={onFilterTextChange}
           name="jobRole"
+          className="text-input"
         />
 
         <select
           name="minJdSalary"
           value={state.filters.minJdSalary}
           onChange={onFilterSelectChange}
+          className="select-input"
         >
           <option value="" disabled hidden>
             Min Base Pay
@@ -297,6 +371,7 @@ const App = () => {
                       jobDetailsFromCompany={item.jobDetailsFromCompany}
                       minExp={item.minExp}
                       logoUrl={item.logoUrl}
+                      openModal={openModal}
                     />
                   </div>
                 ))}
@@ -307,20 +382,18 @@ const App = () => {
         )}
       </>
 
-      {/* THIS WORKS XD */}
-      {/* <button
-        onClick={() => {
-          setState((state: AppState) => ({
-            ...state,
-            reqBody: {
-              limit: state.reqBody.limit,
-              offset: state.reqBody.offset + 1,
-            },
-          }));
-        }}
-      >
-        Load More
-      </button> */}
+      {state.isModalOpen && (
+        <div className="modal">
+          <div className="modalContent">
+            <div onClick={closeModal} className="cross">
+              {" "}
+              X
+            </div>
+
+            <div>{state.enlargedJobDetails}</div>
+          </div>
+        </div>
+      )}
     </StyledApp>
   );
 };

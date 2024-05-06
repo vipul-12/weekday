@@ -75,7 +75,7 @@ type JobCardProps = {
   jobDetailsFromCompany: string;
   minExp: number | null;
   logoUrl: string;
-  openModal: (details: string) => void;
+  openModal: (details: string, companyName: string) => void;
 };
 
 const JobCard = (props: JobCardProps) => {
@@ -86,6 +86,7 @@ const JobCard = (props: JobCardProps) => {
           src={props.logoUrl}
           alt="company logo here"
           className="card-header-img"
+          loading="lazy"
         />
         <div className="card-header-text">
           <div>
@@ -104,12 +105,15 @@ const JobCard = (props: JobCardProps) => {
 
       <div className="est-salary">
         <span>
-          Estimated Salary : ₹{props.minJdSalary} - {props.maxJdSalary}✅
+          Estimated Salary : $
+          {props.minJdSalary === null ? "NA" : props.minJdSalary}
+          {"K"} - ${props.maxJdSalary === null ? "NA" : props.maxJdSalary}
+          {"K"}✅
         </span>
       </div>
 
       <div className="about-company">
-        <span>About Company</span>
+        <h4>About Company</h4>
 
         <p>
           {props.jobDetailsFromCompany.length > 500
@@ -120,16 +124,16 @@ const JobCard = (props: JobCardProps) => {
         <div
           className="link"
           onClick={() => {
-            props.openModal(props.jobDetailsFromCompany);
+            props.openModal(props.jobDetailsFromCompany, props.companyName);
           }}
         >
-          Read More
+          View Job
         </div>
       </div>
 
       <div className="min-xp">
         <span className="grey-col">Minimum Experience </span>
-        <div>{props.minExp} years</div>
+        <div>{props.minExp === null ? "NA" : props.minExp} years</div>
       </div>
 
       <button className="apply-button">⚡Easy Apply</button>

@@ -9,22 +9,29 @@ const StyledApp = styled.div`
   .grid {
     display: flex;
     flex-wrap: wrap;
-    // justify-content: space-around;
-    // overflow: auto;
-    // height: 400px;
   }
 
   .column {
-    flex: 0 0 33.33%;
+    flex: 0 0 100%;
     padding: 1rem;
     box-sizing: border-box;
-    max-width: 33.33%;
+    max-width: 100%;
+
+    @media (min-width: 768px) {
+      flex: 0 0 50%;
+      max-width: 50%;
+      // margin: 1rem;
+    }
+
+    @media (min-width: 1169px) {
+      flex: 0 0 33.33%;
+      max-width: 33.33%;
+    }
   }
 
   .filters {
     display: flex;
     justify-content: center;
-    position: sticky;
     top: 0;
     z-index: 10;
     padding: 10px;
@@ -39,11 +46,36 @@ const StyledApp = styled.div`
   }
 
   .select-input {
+    position: relative;
     height: 27px;
     border: 1px solid gray;
     border-radius: 5px;
     padding: 2px 4px;
     margin: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .filters {
+      flex-wrap: wrap;
+      // position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .text-input,
+    .select-input,
+    .clear-select {
+      flex: 0 0 100%;
+      max-width: 30%;
+    }
+    .clear-select {
+      cursor: pointer;
+    }
+  }
+
+  .clear-select {
+    padding: 3px;
+    cursor: pointer;
   }
 
   .modal {
@@ -112,6 +144,7 @@ type AppState = {
   filters: FilterObject;
   isModalOpen: boolean;
   enlargedJobDetails: string;
+  enlargedName: string;
 };
 
 const getData = async (body: RequestBody): Promise<AxiosResponse<any>> => {
@@ -125,7 +158,6 @@ const getData = async (body: RequestBody): Promise<AxiosResponse<any>> => {
         },
       }
     );
-    // console.log(response);
     return response;
   } catch (error) {
     console.log(error);
@@ -150,6 +182,7 @@ const App = () => {
     },
     isModalOpen: false,
     enlargedJobDetails: "",
+    enlargedName: "",
   });
 
   const onFilterSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -236,11 +269,12 @@ const App = () => {
     );
   };
 
-  const openModal = (details: string) => {
+  const openModal = (details: string, companyName: string) => {
     setState((state: AppState) => ({
       ...state,
       isModalOpen: true,
       enlargedJobDetails: details,
+      enlargedName: companyName,
     }));
   };
 
@@ -249,13 +283,12 @@ const App = () => {
       ...state,
       isModalOpen: false,
       enlargedJobDetails: "",
+      enlargedName: "",
     }));
   };
 
   useEffect(() => {
     getData(state.reqBody).then((res: AxiosResponse<any>) => {
-      // console.log("useEffect : ", res?.data.jdList);
-
       if (res && res.data) {
         const newJobs: JobDescription[] = state.jobs.concat(res.data.jdList);
         setState((state: AppState) => ({
@@ -285,6 +318,22 @@ const App = () => {
             </option>
           ))}
         </select>
+        {state.filters.minExp !== "" && (
+          <div
+            className="clear-select"
+            onClick={() => {
+              setState((state: AppState) => ({
+                ...state,
+                filters: {
+                  ...state.filters,
+                  minExp: "",
+                },
+              }));
+            }}
+          >
+            x
+          </div>
+        )}
         <input
           type="text"
           placeholder="Company Name"
@@ -313,6 +362,22 @@ const App = () => {
           <option value="remote">Remote</option>
           <option value="Onsite">Onsite</option>
         </select>
+        {state.filters.remoteOnsite !== "" && (
+          <div
+            className="clear-select"
+            onClick={() => {
+              setState((state: AppState) => ({
+                ...state,
+                filters: {
+                  ...state.filters,
+                  remoteOnsite: "",
+                },
+              }));
+            }}
+          >
+            x
+          </div>
+        )}
 
         <input
           type="text"
@@ -335,12 +400,27 @@ const App = () => {
 
           {[...Array(10)].map((_, index) => (
             <option key={index + 1} value={index * 10}>
-              {index * 10}L
+              {index * 10}K
             </option>
           ))}
         </select>
+        {state.filters.minJdSalary !== "" && (
+          <div
+            className="clear-select"
+            onClick={() => {
+              setState((state: AppState) => ({
+                ...state,
+                filters: {
+                  ...state.filters,
+                  minJdSalary: "",
+                },
+              }));
+            }}
+          >
+            x
+          </div>
+        )}
       </div>
-      {/* <span>Hello min Exp : {state.filters.minExp}</span> */}
       <>
         {state.jobs.length > 0 ? (
           <InfiniteScroll
@@ -389,8 +469,10 @@ const App = () => {
               {" "}
               X
             </div>
-
-            <div>{state.enlargedJobDetails}</div>
+            <div>
+              <h3>About {state.enlargedName}</h3>
+              <p>{state.enlargedJobDetails}</p>
+            </div>
           </div>
         </div>
       )}

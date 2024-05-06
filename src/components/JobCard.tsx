@@ -1,11 +1,9 @@
-import React from "react";
 import styled from "styled-components";
 
 const StyledJobCard = styled.div`
   display: flex;
   width: 350px;
   padding: 15px;
-  //   justify-content: center;
   box-shadow: 0 4px 8px #686666;
 
   flex-direction: column;
@@ -25,14 +23,13 @@ const StyledJobCard = styled.div`
   .card-header {
     display: flex;
     padding: 2px;
-    // flex-direction: column;
   }
 
   .apply-button {
     display: inline-block;
     padding: 10px 20px;
     margin-top: 4px;
-    background-color: lightgreen;
+    background-color: #90EE90;
     text-align: center;
     border: none;
     cursor: pointer;
@@ -66,6 +63,7 @@ const StyledJobCard = styled.div`
   }
 `;
 
+// The proptypes that are required to be passed down to this card.
 type JobCardProps = {
   companyName: string;
   jobRole: string;
@@ -104,6 +102,7 @@ const JobCard = (props: JobCardProps) => {
       </div>
 
       <div className="est-salary">
+        {/* Basic validations to render the correct Data. I didn't see INR as a currency for any object so I have assumed that the salary is in thousands of dollars. */}
         <span>
           Estimated Salary : $
           {props.minJdSalary === null ? "NA" : props.minJdSalary}

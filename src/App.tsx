@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import "./App.css";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import JobCard from "./components/JobCard";
 import styled from "styled-components";
+import { getData } from "./services/getData";
+import Loader from "./components/Loader";
 
 const StyledApp = styled.div`
   .grid {
@@ -113,6 +115,7 @@ const StyledApp = styled.div`
   }
 `;
 
+// Data Type for the api response
 type JobDescription = {
   jdUid: string;
   jdLink: string;
@@ -128,11 +131,13 @@ type JobDescription = {
   logoUrl: string;
 };
 
-type RequestBody = {
+// Data Type for our request body.
+export type RequestBody = {
   limit: number;
   offset: number;
 };
 
+// Data Type for filters
 type FilterObject = {
   minExp: string;
   companyName: string;
@@ -142,6 +147,7 @@ type FilterObject = {
   minJdSalary: string;
 };
 
+// Data Type for the state object.
 type AppState = {
   jobs: JobDescription[];
   reqBody: RequestBody;
@@ -151,25 +157,8 @@ type AppState = {
   enlargedName: string;
 };
 
-const getData = async (body: RequestBody): Promise<AxiosResponse<any>> => {
-  try {
-    const response = await axios.post(
-      "https://api.weekday.technology/adhoc/getSampleJdJSON",
-      body,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return response;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-};
-
 const App = () => {
+  // default values for the state object.
   const [state, setState] = useState<AppState>({
     jobs: [],
     reqBody: {
@@ -189,6 +178,7 @@ const App = () => {
     enlargedName: "",
   });
 
+  // Function to change the filters inside the state object specifically for SELECT TYPE INPUTS.
   const onFilterSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     let newFilters: FilterObject = state.filters;
     switch (e.target.name) {
@@ -211,6 +201,7 @@ const App = () => {
     }));
   };
 
+  // Function to change the filters inside the state object specifically for TEXT TYPE INPUTS.
   const onFilterTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newFilters: FilterObject = state.filters;
     switch (e.target.name) {
@@ -233,7 +224,12 @@ const App = () => {
     }));
   };
 
-  const applyFilters = (job: JobDescription, filters: FilterObject) => {
+  // Function to apply all the filters applied by the user.
+  // This function basically returns a boolean which is used to check whether a particular job should be rendered or not based on the filters applied.
+  const applyFilters = (
+    job: JobDescription,
+    filters: FilterObject
+  ): boolean => {
     const companyNameFilter: boolean =
       filters.companyName.trim() === "" ||
       job.companyName.toLowerCase().includes(filters.companyName.toLowerCase());
@@ -273,6 +269,7 @@ const App = () => {
     );
   };
 
+  // Simple function to open the modal and render the full company decsription which is truncated inside the card.
   const openModal = (details: string, companyName: string) => {
     setState((state: AppState) => ({
       ...state,
@@ -282,6 +279,7 @@ const App = () => {
     }));
   };
 
+  // Function to close the modal and re-initialize the modal-state.
   const closeModal = () => {
     setState((state: AppState) => ({
       ...state,
@@ -291,6 +289,7 @@ const App = () => {
     }));
   };
 
+  // This useEffect watches for any changes within the request-body. I'm changing the offset inside the request-body to call the api again and append my state object jobs array.
   useEffect(() => {
     getData(state.reqBody).then((res: AxiosResponse<any>) => {
       if (res && res.data) {
@@ -305,6 +304,7 @@ const App = () => {
 
   return (
     <StyledApp>
+      {/* This div contains all the filters */}
       <div className="filters">
         <select
           name="minExp"
@@ -425,12 +425,15 @@ const App = () => {
           </div>
         )}
       </div>
+
+      {/* This fragment contains the cards which will be added dynamically upon scrolling to the bottom of the page. */}
       <>
         {state.jobs.filter((job: JobDescription) =>
           applyFilters(job, state.filters)
         ).length > 0 ? (
           <InfiniteScroll
             dataLength={state.jobs.length}
+            // The next prop accepts a function which is executed when the user scrolls to the bottom.
             next={() => {
               setState((state: AppState) => ({
                 ...state,
@@ -441,9 +444,10 @@ const App = () => {
               }));
             }}
             hasMore={true}
-            loader={<></>}
+            loader={<Loader />}
           >
             <div className="grid">
+              {/* Filtering the jobs array based on the filters applied. The applyFilters function is called inside Array.filter method here. */}
               {state.jobs
                 .filter((job: JobDescription) =>
                   applyFilters(job, state.filters)
@@ -470,6 +474,7 @@ const App = () => {
         )}
       </>
 
+      {/* Modal to display the full job description */}
       {state.isModalOpen && (
         <div className="modal">
           <div className="modalContent">

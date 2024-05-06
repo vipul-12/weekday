@@ -9,6 +9,7 @@ const StyledApp = styled.div`
   .grid {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
   }
 
   .column {
@@ -20,7 +21,6 @@ const StyledApp = styled.div`
     @media (min-width: 768px) {
       flex: 0 0 50%;
       max-width: 50%;
-      // margin: 1rem;
     }
 
     @media (min-width: 1169px) {
@@ -30,34 +30,38 @@ const StyledApp = styled.div`
   }
 
   .filters {
+    // margin: 10px;
     display: flex;
     justify-content: center;
     top: 0;
     z-index: 10;
     padding: 10px;
+    // box-sizing: border-box;
   }
 
   .text-input {
-    padding: 2px 4px;
-    margin: 3px;
-    border: 1px solid gray;
+    border: 1px solid #cccccc;
     border-radius: 4px;
-    height: 20px;
+    height: 40px;
+    padding: 8px 12px;
+    margin: 0px 3px;
+    box-sizing: border-box;
+    font-size: 16px;
   }
 
   .select-input {
-    position: relative;
-    height: 27px;
-    border: 1px solid gray;
-    border-radius: 5px;
-    padding: 2px 4px;
-    margin: 2px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    height: 40px;
+    padding: 8px 12px;
+    margin: 0px 3px;
+    box-sizing: border-box;
+    font-size: 16px;
   }
 
   @media (max-width: 768px) {
     .filters {
       flex-wrap: wrap;
-      // position: sticky;
       top: 0;
       z-index: 10;
     }
@@ -314,7 +318,7 @@ const App = () => {
 
           {[...Array(10)].map((_, index) => (
             <option key={index + 1} value={index + 1}>
-              {index + 1}
+              {index + 1} year(s)
             </option>
           ))}
         </select>
@@ -422,7 +426,9 @@ const App = () => {
         )}
       </div>
       <>
-        {state.jobs.length > 0 ? (
+        {state.jobs.filter((job: JobDescription) =>
+          applyFilters(job, state.filters)
+        ).length > 0 ? (
           <InfiniteScroll
             dataLength={state.jobs.length}
             next={() => {
@@ -439,7 +445,9 @@ const App = () => {
           >
             <div className="grid">
               {state.jobs
-                .filter((job) => applyFilters(job, state.filters))
+                .filter((job: JobDescription) =>
+                  applyFilters(job, state.filters)
+                )
                 .map((item: JobDescription, index: number) => (
                   <div className="column" key={index}>
                     <JobCard
